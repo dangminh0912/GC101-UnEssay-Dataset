@@ -1,0 +1,187 @@
+---
+title: "Unessay Report"
+name: "Minh Nguyen"
+format: docx
+editor: visual
+---
+
+```{r, warning = FALSE, message = FALSE}
+# Import library
+
+library(tidyverse)
+library(readxl)
+library(dplyr)
+library(estimatr)
+options(scipen = 999)
+
+player_performance <- read_excel('/Users/dangminh0912/Desktop/Year 4 (Sem 2)/GC 101/Unessay /Dataset/Excel File/Players performance.xlsx')
+players_wages <- read_excel('/Users/dangminh0912/Desktop/Year 4 (Sem 2)/GC 101/Unessay /Dataset/Excel File/Players Wages.xlsx')
+matches_by_teams <- read_excel('/Users/dangminh0912/Desktop/Year 4 (Sem 2)/GC 101/Unessay /Dataset/Excel File/Matches by Team.xlsx') 
+```
+
+## Performance vs Wages from England vs non-England
+
+```{r, warning = FALSE, message = FALSE}
+# Merged data set
+performance_wage <- player_performance %>% 
+  left_join(players_wages, by = "Player") 
+
+performance_wage <- performance_wage %>%  
+  mutate(GBP_currency_wage = str_extract(performance_wage$`Annual Wages`, "£[ ]?[0-9,]+")) %>%  
+  mutate(GBP_currency_wage = as.numeric(str_remove_all(GBP_currency_wage, "[£, ]"))) %>% 
+  mutate(Eng_or_not = ifelse(Nation.x == "eng ENG",1,0))
+  
+```
+
+```{r, warning = FALSE, message = FALSE}
+
+# England or not: England = 1 , Immigrant = 0
+# Age vs. Salary
+performance_wage %>% ggplot(aes(x=Age.x, y= GBP_currency_wage))+
+  geom_point(aes(colour = factor(Eng_or_not)))+
+  geom_smooth(aes(colour = factor(Eng_or_not)))+
+  theme(plot.title = element_text(face = "bold"),
+          panel.grid.major = element_line(color = "gray70", size = 0.5),
+          panel.grid.minor = element_line(color = "gray70", size = 0.25),
+          panel.background = element_rect(fill="white"),
+          plot.caption = element_text(hjust = 0.5, vjust = 0, size = 11),
+          legend.position = "bottom") +
+  labs(x = "Age", y = "Wages (£)",
+       title = " Compare Age and Players' Wages between England and Immigrants")+
+   guides(color = guide_legend(title = "England or Not")) +
+  scale_colour_manual(values = c("black", "#3A95B1"), labels = c("England", "Immigrants"))  
+  
+
+# Match Played vs. Salary
+performance_wage %>% ggplot(aes(x=MP, y= GBP_currency_wage))+
+  geom_point(aes(color = factor(Eng_or_not)))+
+  geom_smooth(aes(colour = factor(Eng_or_not))) +
+  theme(plot.title = element_text(face = "bold"),
+          panel.grid.major = element_line(color = "gray70", size = 0.5),
+          panel.grid.minor = element_line(color = "gray70", size = 0.25),
+          panel.background = element_rect(fill="white"),
+          plot.caption = element_text(hjust = 0.5, vjust = 0, size = 11),
+          legend.position = "bottom") +
+  labs(x = "Matched Player", y = "Wages (£)",
+       title = " Compare Matched Played and Wages between England and Immigrants")+
+  guides(color = guide_legend(title = "England or Not")) +
+  scale_colour_manual(values = c("black", "#3A95B1"), labels = c("England", "Immigrants"))  
+
+
+#	Minutes Played (Min) vs Wages
+performance_wage %>% ggplot(aes(x=Min, y= GBP_currency_wage))+
+  geom_point(aes(color = factor(Eng_or_not)))+
+  geom_smooth(aes(colour = factor(Eng_or_not))) +
+  theme(plot.title = element_text(face = "bold"),
+          panel.grid.major = element_line(color = "gray70", size = 0.5),
+          panel.grid.minor = element_line(color = "gray70", size = 0.25),
+          panel.background = element_rect(fill="white"),
+          plot.caption = element_text(hjust = 0.5, vjust = 0, size = 11),
+          legend.position = "bottom") +
+  labs(x = "Minutes Played", y = "Wages (£)",
+       title = " Compare Minutes Played and Wages between England and Immigrants")+
+  guides(color = guide_legend(title = "England or Not")) +
+  scale_colour_manual(values = c("black", "#3A95B1"), labels = c("England", "Immigrants"))  
+
+# Goals (GLS) vs Wages
+performance_wage %>% ggplot(aes(x=Gls...9, y= GBP_currency_wage))+
+  geom_point(aes(color = factor(Eng_or_not)))+
+  geom_smooth(aes(colour = factor(Eng_or_not))) +
+  theme(plot.title = element_text(face = "bold"),
+          panel.grid.major = element_line(color = "gray70", size = 0.5),
+          panel.grid.minor = element_line(color = "gray70", size = 0.25),
+          panel.background = element_rect(fill="white"),
+          plot.caption = element_text(hjust = 0.5, vjust = 0, size = 11),
+          legend.position = "bottom") +
+  labs(x = "Number of Goals", y = "Wages (£)",
+       title = " Compare the Goal Scored and Wages between England and Immigrants")+
+  guides(color = guide_legend(title = "England or Not")) +
+  scale_colour_manual(values = c("black", "#3A95B1"), labels = c("England", "Immigrants"))
+
+# Assists (Ast) vs Wages
+performance_wage %>% ggplot(aes(x=Ast...10, y= GBP_currency_wage))+
+  geom_point(aes(color = factor(Eng_or_not)))+
+  geom_smooth(aes(colour = factor(Eng_or_not))) +
+  theme(plot.title = element_text(face = "bold"),
+          panel.grid.major = element_line(color = "gray70", size = 0.5),
+          panel.grid.minor = element_line(color = "gray70", size = 0.25),
+          panel.background = element_rect(fill="white"),
+          plot.caption = element_text(hjust = 0.5, vjust = 0, size = 11),
+          legend.position = "bottom") +
+  labs(x = "Number of Assists", y = "Wages (£)",
+       title = " Compare the Assists and Wages between England and Immigrants")+
+  guides(color = guide_legend(title = "England or Not")) +
+  scale_colour_manual(values = c("black", "#3A95B1"), labels = c("England", "Immigrants"))
+
+
+```
+
+## Ticket sales of each team
+
+```{r, warning = FALSE, message = FALSE}
+# Run this code block twice
+# Remove Chelsea rows because a ticket price is unavailable
+matches_by_teams <- matches_by_teams %>%
+  mutate(New_Price= ifelse(`Price (£)` == "TBC",0,`Price (£)`)) %>% 
+  mutate(Total_sales = as.numeric(Matches) * as.numeric(New_Price))
+
+matches_by_teams %>% ggplot(aes(x = Team)) +
+  geom_col(aes(y= New_Price,colour = Team)) +
+  theme(plot.title = element_text(face = "bold"),
+          panel.grid.major = element_line(color = "gray70", size = 0.5),
+          panel.grid.minor = element_line(color = "gray70", size = 0.25),
+          panel.background = element_rect(fill="white"),
+          legend.position = "bottom",
+          axis.text.x = element_blank()) +
+  labs(x = "Team", y = "Total Ticket Sales revenue",
+       title = " Total Ticket Sales Revenue in each Premier League team")
+
+
+# Print the top 5 rows with the highest total sales price 
+top_5_team <- matches_by_teams %>%
+  arrange(desc(Total_sales)) %>%
+  slice_head(n = 5)
+
+print(top_5_team)
+
+
+# Merged data set
+players_wages <- players_wages %>% 
+  left_join(performance_wage, by = "Player") 
+
+# Visualization showing top 5 teams with highest ticket sales
+players_wages %>% filter(Squad.x == "Tottenham" | Squad.x == "Arsenal" | Squad.x == "Manchester Utd"| Squad.x == "West Ham" | Squad.x == "Manchester City") %>% 
+  ggplot(aes(x = Squad.x, fill=factor(Eng_or_not.x))) + 
+  geom_bar() +
+  labs(x = "Team", y = "Number of players", title = "Number of players in top 5 teams with highest ticket sales") +
+  guides(color = guide_legend(title = "England or Not")) +
+  theme(plot.title = element_text(face = "bold"),
+          panel.grid.major = element_line(color = "gray70", size = 0.5),
+          panel.grid.minor = element_line(color = "gray70", size = 0.25),
+          panel.background = element_rect(fill="white"),
+          legend.position = "bottom") +
+   guides(fill = guide_legend(title = "England or Not")) +
+  scale_fill_manual(values = c("black", "#3A95B1"), labels = c("Migrants", "England"))
+  
+
+```
+
+## Regression Model to predict the Salary
+
+```{r, warning = FALSE, message = FALSE}
+england_players_wages <- players_wages %>% filter(Eng_or_not == 1) 
+england_players_model <- lm_robust(GBP_currency_wage ~ I(Age.x^2) + MP + Gls...9 + Ast...10, data = england_players_wages)
+
+summary(england_players_model)
+```
+
+```{r, warning = FALSE, message = FALSE}
+immigrant_players_wages <- players_wages %>% filter(Eng_or_not == 0) 
+immigrant_players_model <- lm_robust(GBP_currency_wage ~ I(Age.x^2) + MP + Gls...9 + Ast...10, data = immigrant_players_wages)
+
+summary(immigrant_players_model)
+```
+
+```{r}
+performance_wage %>% count(Eng_or_not)
+```
